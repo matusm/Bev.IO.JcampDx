@@ -10,6 +10,12 @@ namespace Bev.IO.JcampDx
         private StatisticPod xStat = new StatisticPod();
         private StatisticPod yStat = new StatisticPod();
 
+        public Spectrum(TabularSpectralDataType tabularSpectralDataType)
+        {
+            DataType = tabularSpectralDataType;
+        }
+
+        public TabularSpectralDataType DataType { get; }
         public int Length => spectrum.Count;
         public double FirstX => spectrum.First().X;
         public double LastX => spectrum.Last().X;
@@ -19,6 +25,7 @@ namespace Bev.IO.JcampDx
         public double MinX => xStat.MinimumValue;
         public double MaxY => yStat.MaximumValue;
         public double MinY => yStat.MinimumValue;
+        public double DeltaX => (LastX - FirstX) / (Length - 1); // only usefull for equidistant data points
 
         public void AddValue(SpectralPoint value)
         {
@@ -30,11 +37,7 @@ namespace Bev.IO.JcampDx
 
         public void AddValue(double xValue, double yValue) => AddValue(new SpectralPoint(xValue, yValue));
 
-        public SpectralPoint[] GetSpectrum()
-        {
-            spectrum.Sort();
-            return spectrum.ToArray();
-        }
+        public SpectralPoint[] GetSpectrum() => spectrum.ToArray();
             
     }
 }
