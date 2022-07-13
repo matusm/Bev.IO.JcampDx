@@ -1,9 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+//*****************************************************************************
+// 
+// Class to store and format data (spectrum and metadata) for a JCAMP-DX file 
+// 
+// 
+// Usage:
+// 1.) create instance of the SimpleJcampData class;
+// 2.) populate relevant properties with (meta-)data 
+// 3.) provide the spectrum by calling SetSpectrum(spectrum)
+// 4.) consume the nice formatted content by calling GetDataRecords()
+// 
+// Caveat:
+// - Specific properties are mandatory for a compliant JCAMP-DX file 
+// - Some properties are automatically set by SetSpectrum()
+// - Lines are truncated to 80 characters. Important information might be lost.
+// 
+// Author: Michael Matus, 2022
+// 
+//*****************************************************************************
+
+using System;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Bev.IO.JcampDx
 {
@@ -12,8 +30,9 @@ namespace Bev.IO.JcampDx
 
         private const string dataLabelFlag = "##";
         private const string dataLabelTerminator = "= ";    // trailing space included
+        private const string tabularIndend = "   ";
+        private const int maxColumns = 80;
         private Spectrum spectrum;
-
 
         public string Title = string.Empty;
         public string DataType = string.Empty;
@@ -29,6 +48,9 @@ namespace Bev.IO.JcampDx
         public string Pressure = string.Empty;
         public string Temperature = string.Empty;
         public string DataProcessing = string.Empty;
+        public string SourceReference = string.Empty;
+        public string CrossReference = string.Empty;
+        public string Class = string.Empty;
 
         public string Xunits = string.Empty;
         public string Yunits = string.Empty;
@@ -37,7 +59,7 @@ namespace Bev.IO.JcampDx
 
         public DateTime MeasurementDate;
 
-        public TabularSpectralDataType tabularSpectralDataType = TabularSpectralDataType.Unknown;
+        public TabularSpectralDataType TabularSpectralDataType = TabularSpectralDataType.Unknown;
         public int Npoints;
         public double DeltaX = double.NaN;
         public double Xfactor = 1;
@@ -79,11 +101,14 @@ namespace Bev.IO.JcampDx
             AppendRecord("SAMPLE DESCRIPTION", SampleDescription);
             AppendRecord("ORIGIN", Origin);
             AppendRecord("OWNER", Owner);
+            AppendRecord("CLASS", Class);
+            AppendRecord("SOURCE REFERENCE", SourceReference);
+            AppendRecord("CROSS REFERENCE", CrossReference);
             AppendRecord("SPECTROMETER/DATA SYSTEM", SpectrometerSystem);
             AppendRecord("INSTRUMENT PARAMETERS", InstrumentParameters);
             AppendRecord("DATE", MeasurementDate.ToString("yy/MM/dd"));
             AppendRecord("TIME", MeasurementDate.ToString("HH:mm:ss"));
-            AppendRecord("LONG DATE", MeasurementDate.ToString("yyyy/MM/dd HH:mm:ssK")); // TODO not 4.24 compliant!
+            AppendRecord("LONG DATE", MeasurementDate.ToString("yyyy/MM/dd HH:mm:ssK")); // TODO this is not 4.24 compliant!
             AppendRecord("NPOINTS", Npoints.ToString());
             AppendRecord("XUNITS", Xunits);
             AppendRecord("YUNITS", Yunits);
@@ -96,12 +121,14 @@ namespace Bev.IO.JcampDx
             AppendNumRecord("MAXY", MaxY);
             AppendNumRecord("XFACTOR", Xfactor);
             AppendNumRecord("YFACTOR", Yfactor);
+            AppendRecord("XLABEL", Xlabel);
+            AppendRecord("YLABEL", Ylabel);
             if (spectrum.DataType == TabularSpectralDataType.EqualInterval)
             {
                 AppendRecord("XYDATA", "(X++(Y..Y))");
                 foreach (var point in spectrum.GetSpectrum())
                 {
-                    sb.AppendLine($" {point.X/Xfactor} {point.Y/Yfactor}");
+                    sb.AppendLine($"{tabularIndend}{point.X/Xfactor} {point.Y/Yfactor}");
                 }
             }
             if (spectrum.DataType == TabularSpectralDataType.UnequalInterval)
@@ -109,7 +136,7 @@ namespace Bev.IO.JcampDx
                 AppendRecord("XYPOINTS", "(XY..XY)");
                 foreach (var point in spectrum.GetSpectrum())
                 {
-                    sb.AppendLine($" {point.X/Xfactor} , {point.Y/Yfactor}");
+                    sb.AppendLine($"{tabularIndend}{point.X/Xfactor} , {point.Y/Yfactor}");
                 }
             }
             sb.AppendLine(LabeledDataRecord("END", string.Empty)); // cant use AppendRecord() here !
@@ -131,7 +158,16 @@ namespace Bev.IO.JcampDx
 
         }
 
-        private string LabeledDataRecord(string dataLabelName, string dataSet) => $"{dataLabelFlag}{dataLabelName}{dataLabelTerminator}{dataSet}"; //TODO check line length
+        private string LabeledDataRecord(string dataLabelName, string dataSet) => TruncateString($"{dataLabelFlag}{dataLabelName}{dataLabelTerminator}{dataSet}");
+
+        private string TruncateString(string longString)
+        {
+            if (string.IsNullOrEmpty(longString))
+                return longString;
+            if (longString.Length <= maxColumns)
+                return longString;
+            return $"{longString.Substring(0, maxColumns - 3)}...";
+        }
 
     }
 }
