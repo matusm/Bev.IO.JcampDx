@@ -88,6 +88,7 @@ namespace Bev.IO.JcampDx
             MinX = spectrum.MinX;
             MaxY = spectrum.MaxX;
             MinY = spectrum.MinY;
+            TabularSpectralDataType = spectrum.DataType;
             if (spectrum.DataType == TabularSpectralDataType.EqualInterval)
                 DeltaX = spectrum.DeltaX;
         }
