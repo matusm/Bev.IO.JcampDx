@@ -11,12 +11,10 @@
         InfraredTransformedSpectrum
     }
 
-    public enum TabularSpectralDataType
+    public enum SpectralSpacing
     {
         Unknown,
-        EqualInterval,  // ##XYDATA= (X++(Y..Y))
-        UnequalInterval // ##XYPOINTS= (XY..XY)
+        FixedSpacing,   // ##XYDATA= (X++(Y..Y))
+        VariableSpacing // ##XYPOINTS= (XY..XY)
     }
-
-
 }
