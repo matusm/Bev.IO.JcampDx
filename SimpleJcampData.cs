@@ -86,7 +86,7 @@ namespace Bev.IO.JcampDx
             FirstY = spectrum.FirstY;
             MaxX = spectrum.MaxX;
             MinX = spectrum.MinX;
-            MaxY = spectrum.MaxX;
+            MaxY = spectrum.MaxY;
             MinY = spectrum.MinY;
             AbscissaType = spectrum.AbscissaType;
             if (spectrum.AbscissaType == SpectralSpacing.FixedSpacing)
@@ -118,6 +118,7 @@ namespace Bev.IO.JcampDx
             AppendRecord("XUNITS", Xunits);
             AppendRecord("YUNITS", Yunits);
             AppendNumRecord("FIRSTX", FirstX);
+            AppendNumRecord("FIRSTY", FirstY);
             AppendNumRecord("LASTX", LastX);
             AppendNumRecord("DELTAX", DeltaX);
             AppendNumRecord("MINX", MinX);
