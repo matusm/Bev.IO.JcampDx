@@ -91,6 +91,10 @@ namespace Bev.IO.JcampDx
             AbscissaType = spectrum.AbscissaType;
             if (spectrum.AbscissaType == SpectralSpacing.FixedSpacing)
                 DeltaX = spectrum.DeltaX;
+            else
+                DeltaX = double.NaN;
+            Xunits = spectrum.XUnitName;
+            Yunits = spectrum.YUnitName;
         }
 
         public string GetDataRecords()
