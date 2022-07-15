@@ -59,7 +59,7 @@ namespace Bev.IO.JcampDx
 
         public DateTime MeasurementDate;
 
-        public SpectralSpacing TabularSpectralDataType = SpectralSpacing.Unknown;
+        public SpectralSpacing AbscissaType = SpectralSpacing.Unknown;
         public int Npoints;
         public double DeltaX = double.NaN;
         public double Xfactor = 1;
@@ -88,7 +88,7 @@ namespace Bev.IO.JcampDx
             MinX = spectrum.MinX;
             MaxY = spectrum.MaxX;
             MinY = spectrum.MinY;
-            TabularSpectralDataType = spectrum.AbscissaType;
+            AbscissaType = spectrum.AbscissaType;
             if (spectrum.AbscissaType == SpectralSpacing.FixedSpacing)
                 DeltaX = spectrum.DeltaX;
         }
@@ -127,7 +127,7 @@ namespace Bev.IO.JcampDx
             if (spectrum.AbscissaType == SpectralSpacing.FixedSpacing)
             {
                 AppendRecord("XYDATA", "(X++(Y..Y))");
-                foreach (var point in spectrum.GetSpectrum())
+                foreach (var point in spectrum.GetSpectralData())
                 {
                     sb.AppendLine($"{tabularIndend}{point.X/Xfactor} {point.Y/Yfactor}");
                 }
@@ -135,7 +135,7 @@ namespace Bev.IO.JcampDx
             if (spectrum.AbscissaType == SpectralSpacing.VariableSpacing)
             {
                 AppendRecord("XYPOINTS", "(XY..XY)");
-                foreach (var point in spectrum.GetSpectrum())
+                foreach (var point in spectrum.GetSpectralData())
                 {
                     sb.AppendLine($"{tabularIndend}{point.X/Xfactor} , {point.Y/Yfactor}");
                 }

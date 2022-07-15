@@ -7,38 +7,54 @@ namespace Bev.IO.JcampDx
 {
     public class Spectrum
     {
-        private const double epsilon = 0.0001;
-        private List<SpectralPoint> spectrum = new List<SpectralPoint>();
+        private const double epsilon = 0.000001; // TODO works for Perkin Elmer spectrophotometer
+        private List<SpectralPoint> spectralData = new List<SpectralPoint>();
         private StatisticPod xStat = new StatisticPod();
         private StatisticPod yStat = new StatisticPod();
 
         public SpectralSpacing AbscissaType => EstimateSpacingType();
-        public int Length => spectrum.Count;
-        public double FirstX => spectrum.First().X;
-        public double LastX => spectrum.Last().X;
-        public double FirstY => spectrum.First().Y;
-        public double LastY => spectrum.Last().Y;
+        public int Length => spectralData.Count;
+        public double FirstX => spectralData.First().X;
+        public double LastX => spectralData.Last().X;
+        public double FirstY => spectralData.First().Y;
+        public double LastY => spectralData.Last().Y;
         public double MaxX => xStat.MaximumValue;
         public double MinX => xStat.MinimumValue;
         public double MaxY => yStat.MaximumValue;
         public double MinY => yStat.MinimumValue;
         public double DeltaX => (LastX - FirstX) / (Length - 1); // only usefull for equidistant data points
+        public string XUnitName { get; private set; } = string.Empty;
+        public string YUnitName { get; private set; } = string.Empty;
+        public string XUnitSymbol { get; private set; } = string.Empty;
+        public string YUnitSymbol { get; private set; } = string.Empty;
+
+        public void SetUnitNames(string forX, string forY)
+        {
+            XUnitName = forX.Trim();
+            YUnitName = forY.Trim();
+        }
+
+        public void SetUnitSymbols(string forX, string forY)
+        {
+            XUnitSymbol = forX.Trim();
+            YUnitSymbol= forY.Trim();
+        }
 
         public void AddValue(SpectralPoint value)
         {
-            spectrum.Add(value);
+            spectralData.Add(value);
             xStat.Update(value.X);
             yStat.Update(value.Y);
-            spectrum.Sort();
+            spectralData.Sort();
         }
 
         public void AddValue(double xValue, double yValue) => AddValue(new SpectralPoint(xValue, yValue));
 
-        public SpectralPoint[] GetSpectrum() => spectrum.ToArray();
+        public SpectralPoint[] GetSpectralData() => spectralData.ToArray();
 
         private SpectralSpacing EstimateSpacingType() 
         {
-            SpectralPoint[] spec = GetSpectrum();
+            SpectralPoint[] spec = GetSpectralData();
             if (spec.Length < 3)
                 return SpectralSpacing.Unknown;
             var lambdaDiff = new StatisticPod();
@@ -50,8 +66,6 @@ namespace Bev.IO.JcampDx
             if (rangeOfSpacings < epsilon)
                 return SpectralSpacing.FixedSpacing;
             return SpectralSpacing.VariableSpacing; 
-        }
-
-            
+        }           
     }
 }
